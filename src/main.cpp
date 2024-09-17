@@ -1,14 +1,22 @@
 #include <Arduino.h>
 #include <ACAN2515.h>
+#include <Wire.h>
+#include <U8g2lib.h>
+
+U8G2_SH1106_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
 
 // Utilisation du MCP2515 relié par bus SPI
 // Voir dans doc les pins à utiliser en fonction du type de cible (ESP32, arduino...)
 
-#define cs_2515 5           // réglage broche CS
-#define int_2515 4          // réglage broche Interuption 
+#define cs_2515 5         // réglage broche CS
+#define int_2515 4        // réglage broche Interuption 
 #define f_2515 16000000    // réglage Fréquence du quartz de la carte MCP2515 
 #define f_bus_can 250000        // réglage Vitesse du bus CAN
 
+int RegT;
+int RegH;
+int RegL;
+int val_aff;
 
 ACAN2515 can2515(cs_2515, SPI, int_2515); // Déclaration de l'objet CAN utilisant le réglages des broches définis avant
 
@@ -29,12 +37,16 @@ const ACAN2515AcceptanceFilter filtres[] = {
 
 CANMessage messageCANReception;
 
-
-
-
 void setup()
 {
-	Serial.begin(115200);
+
+    {
+  u8g2.setI2CAddress(0x78);
+  u8g2.begin();
+  u8g2.enableUTF8Print(); //nécessaire pour écrire des caractères accentués
+}
+
+	Serial.begin(9600);
 	Serial.println("Init CAN ok");
 	delay(500);
 	SPI.begin();
@@ -58,17 +70,16 @@ void setup()
 	delay(500);
 }
 
-
 //Traitement message par fonction
 void message_1octet(const CANMessage & inMessage)
 {
 
 }
 
-
 void loop()
 {
-	
+	RegT=(RegH<<8)+RegL;
+    val_aff=RegT/8;
     if (can2515.receive(messageCANReception))  // test si un message est arrivé
     {
     // Un message CAN est arrive 
@@ -77,10 +88,19 @@ void loop()
   
     Serial.println("Messages obtenus: ") ;
     Serial.println(messageCANReception.data[0]);
-   
-    } 
-    
+    Serial.println(messageCANReception.data[1]);
+    RegH=messageCANReception.data[0];
+    RegL=messageCANReception.data[1];
+    }  
     
     delay(100);
 
+  /********************* Dessiner des contours de formes géométriques ******************/
+
+/******************* Écrire du texte *******************************/
+  u8g2.setFont(u8g2_font_ncenB10_tf); // choix de la police
+  u8g2.clearBuffer();
+  u8g2.setCursor(5, 20); // position du début du texte
+  u8g2.print(val_aff);  // on écrit le texte
+  u8g2.sendBuffer();
 }
