@@ -80,6 +80,7 @@ void message_1octet(const CANMessage & inMessage)
 void loop()
 {
 	RegT=(RegH<<8)+RegL;
+  val_aff=RegT/8;
     if (can2515.receive(messageCANReception))  // test si un message est arrivé
     {
     // Un message CAN est arrive 
