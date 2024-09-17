@@ -17,6 +17,7 @@ int RegT;
 int RegH;
 int RegL;
 int val_aff;
+int bariere =8191;
 
 ACAN2515 can2515(cs_2515, SPI, int_2515); // Déclaration de l'objet CAN utilisant le réglages des broches définis avant
 
@@ -79,7 +80,6 @@ void message_1octet(const CANMessage & inMessage)
 void loop()
 {
 	RegT=(RegH<<8)+RegL;
-    val_aff=RegT/8;
     if (can2515.receive(messageCANReception))  // test si un message est arrivé
     {
     // Un message CAN est arrive 
@@ -100,7 +100,22 @@ void loop()
 /******************* Écrire du texte *******************************/
   u8g2.setFont(u8g2_font_ncenB10_tf); // choix de la police
   u8g2.clearBuffer();
-  u8g2.setCursor(5, 20); // position du début du texte
-  u8g2.print(val_aff);  // on écrit le texte
+  u8g2.setCursor(0, 20); // position du début du texte
+  u8g2.print(1);  // on écrit le texte
+  u8g2.setCursor(15, 20); // position du début du texte
+  u8g2.print(2);  // on écrit le texte
+  u8g2.setCursor(30, 20); // position du début du texte
+  u8g2.print(3);  // on écrit le texte
+  u8g2.setCursor(45, 20); // position du début du texte
+  u8g2.print(4);  // on écrit le texte
+  u8g2.setCursor(60, 20); // position du début du texte
+  u8g2.print(5);  // on écrit le texte
+  u8g2.setCursor(75, 20); // position du début du texte
+  u8g2.print(6);  // on écrit le texte
+  u8g2.setCursor(90, 20); // position du début du texte
+  u8g2.print(7);  // on écrit le texte
+  u8g2.setCursor(105, 20); // position du début du texte
+  u8g2.print(8);  // on écrit le texte
   u8g2.sendBuffer();
+  delay(300);
 }
